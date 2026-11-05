@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import type { Knowledge } from '@mastra/core/knowledge';
@@ -29,8 +30,9 @@ export async function ingestText(input: { title: string; text: string; submitter
   const slug = input.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'source';
   const dir = path.join(config.dataDir, 'uploads');
   mkdirSync(dir, { recursive: true });
-  const file = path.join(dir, `${slug}.md`);
-  writeFileSync(file, input.text.startsWith('#') ? input.text : `# ${input.title}\n\n${input.text}\n`);
+  // Unique name + exclusive create: concurrent submissions (even with the same title) never share or overwrite a file.
+  const file = path.join(dir, `${slug}-${randomUUID()}.md`);
+  writeFileSync(file, input.text.startsWith('#') ? input.text : `# ${input.title}\n\n${input.text}\n`, { flag: 'wx' });
   const queue = await getQueue();
   const sub = await submit(file, { queue, submitter: input.submitter });
   if (sub.status === 'duplicate') return { status: 'duplicate' as const, sourceId: sub.sourceId, message: 'Identical content was already submitted; nothing to do.' };

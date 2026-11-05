@@ -91,6 +91,10 @@ How it works (`src/skills.ts`): skills live in Mastra's open-source, versioned s
 the user's own skills plus the shared ones. Invalid drafts are skipped. Agent Builder (Studio `/agent-builder`) is
 **not** used: it always offers agent creation and is an Enterprise feature.
 
+Security: a colleague's shared skill is treated as untrusted content (labelled "non vérifiée" and wrapped with a guard:
+it can never authorise deletes, writes outside the user's request or reading private notes). There is no review step
+before a skill is shared yet; for production, route `shared=true` through an approval (e.g. the PRRC or a skill owner).
+
 ## Ingest a source from the UI
 
 Two ways, both through the real pipeline: `raw/` write-once, dedupe by hash, queue, KB lease, then the ingest

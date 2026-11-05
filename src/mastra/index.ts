@@ -1,7 +1,7 @@
 import { Mastra } from '@mastra/core/mastra';
 import { Memory } from '@mastra/memory';
 import { KNOWLEDGE_ROUTES } from '@mastra/server/server-adapter';
-import { createAssistantAgent, createReaderAgent, createIngestAgent } from '../agents.js';
+import { createAssistantAgent, createReaderAgent } from '../agents.js';
 import { modelFor } from '../model.js';
 import { createKnowledge } from '../knowledge.js';
 import { createStorage } from '../store.js';
@@ -22,11 +22,12 @@ export const assistantAgent = createAssistantAgent(
   userSkillsResolver(storage),
 );
 export const ingestSourceWorkflow = createIngestWorkflow(knowledge, storage);
-export const ingestAgent = createIngestAgent(knowledge);
 
 export const mastra = new Mastra({
   storage,
-  agents: { readerAgent, assistantAgent, ingestAgent },
+  // The ingest agent is NOT registered here: it would let any API/Studio caller write to org:kelvara outside the
+  // queue, lease fencing and review gate. Ingestion only goes through ingest_source / the ingest-source workflow.
+  agents: { readerAgent, assistantAgent },
   workflows: { ingestSourceWorkflow },
   knowledge: { kelvara: knowledge },
   server: {

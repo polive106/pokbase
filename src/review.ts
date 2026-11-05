@@ -2,6 +2,9 @@ import { isMain } from './lib/cli.js';
 import { Queue } from './ingest/queue.js';
 import { decide, listPending } from './ingest/review-gate.js';
 
+/** Escapes control characters (incl. ESC sequences) so pending-write content cannot spoof or hide text in the terminal. */
+const safe = (s: string) => s.replace(/[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/g, (c) => `\\x${c.charCodeAt(0).toString(16).padStart(2, '0')}`);
+
 /**
  * npm run review                      list pending writes
  * npm run review -- approve <id>      let the write happen; the run resumes
@@ -16,9 +19,9 @@ if (isMain(import.meta.url)) {
     for (const p of pending) {
       const args = JSON.parse(p.args);
       const { body, ...rest } = args;
-      console.log(`#${p.id}  run ${p.run_id}  ${p.tool} ${JSON.stringify(rest)}`);
-      if (body !== undefined) console.log(String(body).split('\n').map((l) => `    │ ${l}`).join('\n'));
-      if (args.text) console.log(`    │ ${args.text}`);
+      console.log(`#${p.id}  run ${p.run_id}  ${p.tool} ${safe(JSON.stringify(rest))}`);
+      if (body !== undefined) console.log(safe(String(body)).split('\n').map((l) => `    │ ${l}`).join('\n'));
+      if (args.text) console.log(`    │ ${safe(String(args.text))}`);
     }
   } else if (cmd === 'approve' || cmd === 'reject') {
     const ok = await decide(queue, Number(idArg), cmd === 'approve' ? 'approved' : 'rejected', why.join(' ') || undefined);
