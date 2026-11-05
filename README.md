@@ -1,222 +1,369 @@
 # pokbase — Mastra Knowledge prototype (read + ingest)
 
-Evaluation prototype: Mastra Knowledge (`@mastra/core` 1.82.0, alpha) as the store for an
-agent-maintained Markdown knowledge base, with a queued, lease-fenced ingestion pipeline.
-Results are in [FINDINGS.md](FINDINGS.md).
+An evaluation prototype that uses [Mastra Knowledge](https://mastra.ai/docs/knowledge/overview)
+(`@mastra/core` 1.82.0, **alpha**) as the store for an **agent-maintained Markdown knowledge base**:
 
-All data is fictional. The seed is the handbook of **Kelvara Health**, an invented EU digital-health
-startup working under heavy regulation. It contains no real company, person or patient data.
+- raw sources are dropped into a write-once folder, queued, and ingested by an LLM agent into curated
+  concept pages (with citations, contradictions and superseded values);
+- employees chat with an assistant that reads and writes the KB, and can create their own **skills**;
+- everything runs locally: SQLite by default, no Docker, and **no API key needed** for the core paths.
 
-## The dataset
+The results of the evaluation are in [FINDINGS.md](FINDINGS.md); the original brief is [prd.md](prd.md).
 
-`fixtures/kelvara-handbook/` holds 22 concept pages, **all written in French** (page keys stay as ASCII slugs, e.g. `sites/elmhaven-monitoring-centre`). The sources, adversarial fixtures and eval questions are in French too. Each controlled document carries `doc_id`, `revision`,
-`owner`, `review_due` and `regulatory_refs` front matter.
+> **All data is fictional.** The KB is the internal handbook of *Kelvara Health*, an invented French
+> digital-health startup (a class IIa software medical device, MDR vigilance, GDPR, HDS hosting).
+> The content is **in French**. It contains no real company, person or patient data.
 
-| Page | What it covers |
-| --- | --- |
-| `products/kelvara-rhythm` | Class IIa software medical device (MDR rule 11, IEC 62304 class B) that flags suspected AF in patch ECGs |
-| `products/kelvara-suivi` | The patient companion app, *hors dispositif médical* |
-| `sites/elmhaven-monitoring-centre`, `sites/thornfield-backup-centre` | Remote ECG review centres |
-| `suppliers/ardoise-cloud`, `suppliers/linnet-medical` | HDS-certified host and subprocessor; patch maker and critical supplier |
-| `policies/data-retention` (+ deprecated `-2024`), `policies/patient-data-access` | Retention periods, break-glass access, access logging |
-| `playbooks/incident-vigilance` | MDR vigilance (2/10/15-day reports), GDPR breaches (72 h), FSCA. **The long page** (~2,000 words) |
-| `people/prrc` | The MDR Article 15 role (a role, not a person) |
-| `glossary/significant-change` | Draft definition of a change that needs notified body review |
-| `reglementation/*` (10 pages, **in French**) | The real French and EU framework, summarised from official sources (ANS, HAS, ANSM, CNIL, EUR-Lex) and applied to Kelvara: regulatory map, MDR transition and EUDAMED, ANSM matériovigilance, HDS v2 certification, télésurveillance and LATM, PECAN, Ségur du numérique, INS, CNIL health référentiels, EHDS (draft). Each page has a `verified` date and the official URLs in `sources` |
+---
 
-The eight sources in `fixtures/sources/` produce the PRD §6.2 effects in this domain:
+## Contents
 
-- a new messaging subprocessor;
-- two conflicting dates for when Elmhaven closes;
-- a retention period changed from 30 to 45 days, superseding the old one;
-- a byte-identical duplicate;
-- extra access-control rules;
-- a French product note;
-- a canary.
+1. [Quick start (5 minutes, no API key)](#1-quick-start-5-minutes-no-api-key)
+2. [Add a model key (chat, ingestion)](#2-add-a-model-key-chat-ingestion)
+3. [Guided tour](#3-guided-tour)
+4. [How it works](#4-how-it-works)
+5. [The dataset](#5-the-dataset)
+6. [Tests and eval](#6-tests-and-eval)
+7. [Configuration reference](#7-configuration-reference)
+8. [Scripts](#8-scripts)
+9. [Project layout](#9-project-layout)
+10. [Troubleshooting](#10-troubleshooting)
+11. [Limits: this is a prototype](#11-limits-this-is-a-prototype)
 
-`fixtures/adversarial/` adds two sources:
+---
 
-- `src-09`: a prompt injection;
-- `src-10`: a complaint ticket that contains (fictional) patient identifiers, which the ingest agent must not copy into the KB (test T14b).
+## 1. Quick start (5 minutes, no API key)
 
-The agents' instructions add regulated-domain rules:
+**Prerequisites**
 
-- no patient data in pages or notes;
-- regulatory values are copied from sources, never "corrected" from memory;
-- regulatory questions are answered from the KB only (otherwise "I don't know").
-
-**No Docker and no API key are needed** for the deterministic path. Without a key, agents use a
-scripted mock model that really calls the Knowledge tools (search/read/write), so the read and write
-paths, queue, lease and review gate can all be exercised. Ingestion *quality* needs a real model.
-
-## Quick start
+- **Node.js ≥ 22.13** (`node -v`) and npm. macOS or Linux (Windows: use WSL).
+- Nothing else. Docker and an LLM key are optional (see below).
 
 ```bash
-npm install
-npm run seed -- fixtures/kelvara-handbook        # 12 pages into org:kelvara (./data/knowledge-test.db)
-npm test                                          # deterministic tests, ~80 s (T7 runs 60 s)
-npm run dev                                       # Studio → http://localhost:4111 → Knowledge
+git clone https://github.com/polive106/pokbase.git
+cd pokbase
+npm ci                                      # ~1 min
+cp .env.example .env                        # defaults: SQLite store, mock model
+npm run seed -- fixtures/kelvara-handbook   # loads 22 pages into ./data/knowledge-test.db
+npm run dev                                 # Studio on http://localhost:4111
 ```
 
-## Chat with the KB (Studio)
+Open **http://localhost:4111**, then **Knowledge** in the sidebar: you should see the `kelvara` knowledge
+base with its page tree (`sites`, `suppliers`, `policies`, `products`, `playbooks`, `reglementation`, …)
+and a link graph.
 
-With a key in `.env` (see below), run `npm run dev` and open http://localhost:4111. Go to **Agents**, then **Knowledge assistant**:
+Check it from the terminal too (in another shell):
 
-- Ask questions, e.g. "Who hosts our patient data?", then follow up in the same thread ("what service credit do they owe if they miss the SLA?").
-  Answers cite page refs; threads are kept by Memory.
-- Ask it to record things:
-  - "Record for everyone: …" adds a dated note in `org:kelvara`.
-  - "Save a private note for me: …" adds a note visible only in `resource:<you>`.
-  - "Update the Thornfield page: it now has 10 review stations" edits the body with `expectedVersion`, keeping the old value struck through.
-- Then open **Knowledge** in Studio to see the pages, notes and graph update.
-- **Reader agent** is the same, read-only.
-- Studio chats run as `alice`. Use `POC_USER=bob npm run dev` to chat as Bob and check that Alice's private notes are invisible to him.
-- Over HTTP, pick the user with the `x-poc-user` header:
+```bash
+npm run kb -- search "bris de glace"                 # keyword search through the real Knowledge tools
+npm run kb -- read org:kelvara#people/prrc           # read a page (body, version, notes)
+npm test                                             # deterministic test suite, ~1.5 min, no key
+```
+
+Without a key, the agents use a **scripted mock model**: it really calls the Knowledge tools, so reads,
+writes, the queue, the lease and the review gate all work, but it doesn't *understand* anything.
+To chat for real, add a key.
+
+---
+
+## 2. Add a model key (chat, ingestion)
+
+Edit `.env`:
+
+```bash
+MODEL=anthropic/claude-sonnet-5-5
+ANTHROPIC_API_KEY=sk-ant-...        # never commit this; .env is git-ignored
+```
+
+Any provider supported by the Mastra model router works (`openai/...` with `OPENAI_API_KEY`,
+`google/...` with `GOOGLE_GENERATIVE_AI_API_KEY`). Restart `npm run dev` after changing `.env`.
+
+Smoke test:
+
+```bash
+npm run ask -- "Qui décide de déclarer un incident grave ?"
+# → "La PRRC décide …", with page refs such as org:kelvara#playbooks/incident-vigilance
+```
+
+Cost: a chat answer is a few thousand tokens; ingesting the 8 sample sources is ~130k tokens;
+the full LLM test suite and eval together cost a few dollars.
+
+---
+
+## 3. Guided tour
+
+Everything below assumes `npm run dev` is running and a key is set (except 3.1 and 3.6, which work without).
+
+### 3.1 Browse the knowledge base (no key)
+
+Studio → **Knowledge**: tree, pages, notes and the link graph. Pages are Markdown; links between pages
+are Knowledge refs (`org:kelvara#sites/elmhaven-monitoring-centre`). Front matter that Knowledge can't store
+natively (type, tags, status, document control fields) lives in a ```` ```metadata ```` block at the top of
+each body.
+
+### 3.2 Chat with the KB
+
+Studio → **Agents** → **Knowledge assistant** (read + write, with memory). Try, in French:
+
+- "Qui héberge nos données patients ?" then, in the same thread, "et quel crédit de service nous doivent-ils ?"
+- "Combien de temps garde-t-on les enregistrements ECG bruts ?" (current value, and the superseded 2024 one)
+- "Quel est le délai de la FDA pour une déclaration MDR ?" → it should say **it doesn't know**: the KB only
+  covers EU/French rules, and the agent must not answer regulatory questions from memory.
+
+Answers cite page refs. The **Reader agent** is the same, read-only.
+
+### 3.3 Write to the KB, and check isolation
+
+In the assistant chat:
+
+- "Note pour tout le monde : le poste 4 d'Elmhaven a été remplacé." → a dated note in `org:kelvara`.
+- "Garde une note privée pour moi : relancer Ardoise sur le certificat HDS v2." → a note in `resource:alice`.
+- "Mets à jour la page Thornfield : elle compte maintenant 10 postes." → a body edit with `expectedVersion`,
+  the old value struck through.
+
+Studio always runs as user **alice**. To check that Bob can't see Alice's private note, restart as Bob:
+
+```bash
+POC_USER=bob npm run dev
+```
+
+Over HTTP, the user comes from the `x-poc-user` header (`alice` | `bob`); scopes are always set server-side:
+
+```bash
+curl -s localhost:4111/api/agents/assistant/generate -H 'content-type: application/json' -H 'x-poc-user: bob' \
+  -d '{"messages":[{"role":"user","content":"Quand ferme le centre de surveillance d Elmhaven ?"}],"memory":{"thread":"bob-1","resource":"assistant-bob"}}'
+```
+
+### 3.4 Create and use skills
+
+Employees create **skills** (reusable instructions) from the chat; they can't create agents.
+
+1. "Crée-moi une compétence privée nommée resume-incident : quand je décris un incident, lis le playbook
+   incidents et vigilance et réponds en 3 lignes : Gravité, Délai de déclaration, Qui décide."
+2. In a **new** chat: "/resume-incident Un épisode de FA a été manqué, le patient a fait un AVC et il est décédé."
+   → the assistant loads the skill, reads the playbook, and answers in 3 cited lines.
+3. "Partage la compétence resume-incident" → every employee can use it. "Quelles compétences ai-je ?" lists them.
+
+Skills are stored in Mastra's (open-source, versioned) skills storage; see `src/skills.ts`. A colleague's shared
+skill is treated as untrusted content. There is no approval step before sharing yet.
+
+### 3.5 Ingest a new source
+
+Ingestion always goes through the pipeline: content-hashed copy into `raw/` (write-once, deduplicated), a job
+in the queue, a per-KB lease, then the ingest agent.
+
+- **From the chat:** paste a document and say "ingère cette source : …". It takes 20–60 s; the assistant
+  reports pages created/changed and contradictions recorded.
+- **From a form:** Studio → **Workflows** → `ingest-source` → title + full text → Run.
+- **From the CLI, with the sample sources** (two contradicting dates, a superseded value, a duplicate, …):
+
   ```bash
-  curl -s localhost:4111/api/agents/assistant/generate -H 'content-type: application/json' -H 'x-poc-user: bob' \
-    -d '{"messages":[{"role":"user","content":"When does the Elmhaven monitoring centre close?"}],"memory":{"thread":"bob-1","resource":"assistant"}}'
+  for f in fixtures/sources/*; do npm run submit -- "$f"; done   # src-05 is reported as "duplicate"
+  WORKER_ONCE=1 npm run worker; WORKER_ONCE=1 npm run worker      # batch cap is 5, so two runs
+  npm run kb -- read org:kelvara#sites/elmhaven-monitoring-centre # both closure dates + a "Contradictions" section
+  npm run export -- out/export                                    # the KB back as Markdown files
   ```
 
-## Skills (created from the chat)
+  Run logs (every tool call, `expectedVersion` used or not, tokens) are in `out/ingest-runs/`.
 
-Employees create their own skills in the **Knowledge assistant** chat; no agent creation, no admin panel:
+**Human review of writes:** start the worker with `REVIEW=on npm run worker`; each Knowledge write is held.
+In another terminal: `npm run review` (list), `npm run review -- approve <id>`, `npm run review -- reject <id> "reason"`.
 
-- "Crée-moi une compétence privée nommée resume-incident : …" → `skill_create` stores it (author = the server-side user).
-- In any later chat, the assistant uses it when relevant, or on request: `/resume-incident <incident>`.
-- "Partage la compétence resume-incident" makes it visible to every employee; "Quelles compétences ai-je ?" lists
-  mine + shared ones; `skill_delete` removes one of mine. Nobody can change someone else's skill.
+### 3.6 Use it from Claude Code (MCP, no key for reads/writes)
 
-How it works (`src/skills.ts`): skills live in Mastra's open-source, versioned skills storage
-(`storage.getStore('skills')`, also readable at `/api/stored/skills`). The assistant's `skills` resolver loads, per request,
-the user's own skills plus the shared ones. Invalid drafts are skipped. Agent Builder (Studio `/agent-builder`) is
-**not** used: it always offers agent creation and is an Enterprise feature.
-
-Security: a colleague's shared skill is treated as untrusted content (labelled "non vérifiée" and wrapped with a guard:
-it can never authorise deletes, writes outside the user's request or reading private notes). There is no review step
-before a skill is shared yet; for production, route `shared=true` through an approval (e.g. the PRRC or a skill owner).
-
-## Ingest a source from the UI
-
-Two ways, both through the real pipeline: `raw/` write-once, dedupe by hash, queue, KB lease, then the ingest
-agent with citations, contradictions and superseded values:
-
-- **Chat:** in Agents → Knowledge assistant, paste a document and say "please ingest this source: …". The
-  assistant calls `ingest_source`; the nested ingest run takes ~20–60 s, then it reports pages changed and notes added.
-- **Workflow form:** Workflows → `ingest-source` → fill *title* and *full source text* → Run.
-
-The submitter is the server-side user (`alice`, or `POC_USER`). Identical text returns `duplicate`. If a
-`npm run worker` currently holds the KB lease, the source is queued and that worker ingests it.
-
-## MCP server
-
-`src/mcp/stdio.ts` serves the KB over MCP (stdio). It's registered for Claude Code in `.mcp.json` as
-`kelvara-kb`; approve it with `/mcp` or when `claude` starts.
+`.mcp.json` registers an MCP server named **`kelvara-kb`** (stdio, `src/mcp/stdio.ts`). Open the project with
+`claude`, approve the server when asked (or via `/mcp`), and ask Claude e.g. "Qui est responsable de la
+réglementation chez Kelvara ?".
 
 | Tool | What it does |
 | --- | --- |
-| `search`, `list`, `read` | Knowledge search / tree / page read (as `POC_USER`, default `alice`) |
-| `add_note` | dated note on a page; `private: true` → only visible to that user |
-| `create_page`, `edit_page` | create a page; edit a body with `expectedVersion` (optional line `range`) |
-| `ingest_source` | full pipeline: raw/ → dedupe → queue → lease → ingest agent |
-| `ask_reader` | the reader agent answers a question with citations |
+| `search`, `list`, `read` | search, page tree, read a page (as `POC_USER`, default `alice`) |
+| `add_note` | dated note; `private: true` → visible only to that user |
+| `create_page`, `edit_page` | create a page; edit a body (requires `expectedVersion`, optional line `range`) |
+| `ingest_source` | the full ingestion pipeline (needs a key) |
+| `ask_reader` | the reader agent answers end to end (needs a key) |
 
-Knowledge's own tools refuse scopes that the agent runtime didn't set, so the MCP tools run them
-through an agent with server-side scopes. The MCP client can't choose the user; change `POC_USER`
-in `.mcp.json` to act as Bob.
+Without Claude Code: `npm run mcp:smoke` (add `-- --ask "…"` to try `ask_reader`).
 
-Check it without Claude Code: `npm run mcp:smoke -- --ask "When does the Elmhaven monitoring centre close?"`.
-
-## Slack (researched, not built)
-
-The assistant can be exposed in Slack through Mastra's channel adapters. See [docs/slack.md](docs/slack.md) for
-the setup, the identity-to-scope design it needs, and the risks.
-
-## Try it: read
+### 3.7 CLI cheat sheet
 
 ```bash
-npm run kb -- search "elmhaven closure"
-npm run kb -- list
-npm run kb -- read org:kelvara#sites/elmhaven-monitoring-centre
+npm run kb -- list                                        # scopes and page tree
+npm run kb -- search "conservation des données"
 npm run kb -- read org:kelvara#playbooks/incident-vigilance --section "5. Incidents graves et déclaration de vigilance"
-npm run kb -- read resource:bob#notes --user alice   # isolation: "not found"
-npm run ask -- "How long are raw ECG recordings kept?"   # reader agent (LLM if a key is set, else mock)
+npm run kb -- read resource:bob#notes --user alice        # isolation: "not found"
+npm run kb -- note org:kelvara#sites/elmhaven-monitoring-centre "Poste 4 remplacé" --user bob
+npm run kb -- create suppliers/test-co "Test Co" ./body.md
+npm run kb -- write org:kelvara#suppliers/test-co ./new-body.md --version 1   # stale version → conflict
+npm run ask -- "Combien de postes compte Thornfield ?"    # reader agent (mock without a key)
+npm run inspect                                           # dump all tables to out/db-dump.json
 ```
 
-In Studio, open **Knowledge** to browse the tree/graph, and **Agents → Reader agent** to chat. The
-server derives run scopes from the `x-poc-user` header (`alice` | `bob`, default `alice`); request
-bodies can't set scopes.
+---
 
-## Try it: write
+## 4. How it works
 
-Manual writes (through the real `knowledge_page` / `knowledge_note` tools, as a user):
+```
+ client / chat / CLI                                  Mastra (src/mastra/index.ts)
+ ───────────────────                                  ─────────────────────────────
+ submit(file) ──► raw/<sha256>.md (write-once, dedupe)
+              └─► SQLite queue: source row + one job per KB   (src/ingest/queue.ts)
+                                │
+ worker ──► takes the job, acquires the KB lease (holder, epoch, heartbeat)
+        └─► ingest agent ── Knowledge tools ──► org:kelvara pages + notes
+              (every write is checked against the lease first: "fenced" if it was lost)
+
+ reader / assistant agents ── Knowledge tools ──► org:kelvara + resource:<user>
+                              (scopes set server-side by src/scopes.ts, never by the model or the request body)
+```
+
+- **Store:** Mastra Knowledge on LibSQL (`./data/knowledge-test.db`) or Postgres (`STORE=pg`).
+- **Scopes:** `org:kelvara` (shared, role *editor*: agents can't delete pages) and `resource:alice` /
+  `resource:bob` (private). The user comes from `x-poc-user`, `POC_USER`, or defaults to `alice`.
+- **Concurrency:** one ingest at a time per KB (queue + lease), writes fenced by lease epoch, and
+  `expectedVersion` on every page edit. FINDINGS explains why each layer is needed.
+- **Agents:** `reader` (read-only), `assistant` (read/write, memory, skills, `ingest_source`), and the ingest
+  agent (used only by the worker; not exposed on the server).
+
+---
+
+## 5. The dataset
+
+`fixtures/kelvara-handbook/` — 22 pages, in French (page keys stay as ASCII slugs). Controlled documents carry
+`doc_id`, `revision`, `owner`, `review_due` and `regulatory_refs` in their front matter.
+
+| Pages | Content |
+| --- | --- |
+| `products/kelvara-rhythm`, `products/kelvara-suivi` | The class IIa AF-detection software; the patient app (*hors dispositif médical*) |
+| `sites/*` | Elmhaven monitoring centre, Thornfield backup centre |
+| `suppliers/*` | Ardoise Cloud (HDS host, subprocessor), Linnet Medical (patch maker) |
+| `policies/*` | Data retention (+ the deprecated 2024 version), patient-data access |
+| `playbooks/incident-vigilance` | MDR vigilance (2/10/15 days), GDPR breaches (72 h), FSCA — the long page (~2,200 words) |
+| `people/prrc`, `glossary/significant-change` | The MDR Art. 15 role; a draft definition |
+| `reglementation/*` (10 pages) | The real French/EU framework summarised from official sources (ANS, HAS, ANSM, CNIL, EUR-Lex), with a `verified` date: MDR/EUDAMED, matériovigilance, HDS v2, télésurveillance/LATM, PECAN, Ségur, INS, CNIL, EHDS |
+
+`fixtures/sources/` — 8 raw sources, each with an expected effect (a new subprocessor page; two contradicting
+closure dates kept side by side; 30 → 45 days marked superseded; a byte-identical duplicate; extra access rules;
+a French product note; a canary for the deletion test). `fixtures/adversarial/` — a prompt injection and a
+complaint ticket with (fictional) patient identifiers that must never reach the KB.
+
+The regulatory pages summarise real texts for a fictional company: check the official sources before relying
+on them for anything real.
+
+---
+
+## 6. Tests and eval
 
 ```bash
-npm run kb -- note org:kelvara#sites/elmhaven-monitoring-centre "Station 4 screen replaced (Nov 2026)" --user bob
-npm run kb -- create suppliers/test-co "Test Co" ./some-body.md
-npm run kb -- read org:kelvara#suppliers/test-co          # note the version vN
-npm run kb -- write org:kelvara#suppliers/test-co ./new-body.md --version N   # stale N → version conflict
+npm test             # deterministic suite (no key), ~1.5 min; results in out/results/*.json
+npm run test:llm     # + the LLM tests (needs a key; a few minutes)
+npm run test:pg      # the suite on Postgres (embedded PGlite, no Docker) + parity report
+npm run typecheck
 ```
 
-Ingestion pipeline (queue → worker → ingest agent):
+| Test | Checks | Needs a key |
+| --- | --- | --- |
+| T1, T2 | Markdown round trip; deterministic seed/export | no |
+| T3 | concurrent page writes with/without `expectedVersion` | no |
+| T4 | scope isolation (Alice can't see Bob's pages) | no |
+| T5–T8 | submit + dedupe, job batching, one ingest per KB (2 workers, 60 s), lease fencing (SIGSTOP) | no |
+| T12, T12b | review gate (hold, approve, reject) | no |
+| T13, T15, T16 | deletion leftovers, migration safety, Postgres parity | no |
+| T9–T11, T14, T14b | ingest correctness, write discipline, concurrent agents, prompt injection, patient-data minimisation | **yes** (BLOCKED otherwise) |
+
+Real Postgres instead of PGlite: `docker compose up -d`, then
+`STORE=pg PG_URL=postgres://poc:poc@localhost:55433/poc npm test`.
+
+**Retrieval eval** (36 questions in `eval/questions.json`; recall@5 without a key, plus reader answers with one):
 
 ```bash
-for f in fixtures/sources/*; do npm run submit -- "$f"; done   # src-05 reports "duplicate"
-npm run worker              # Ctrl-C to stop; WORKER_ONCE=1 for one batch; run two to see the lease
-npm run export -- out/export
-npm run inspect             # dumps knowledge + queue tables to out/db-dump.json
+npm run eval -- --label seed        # on the freshly seeded KB
+# ingest the sample sources (section 3.5), then:
+npm run eval -- --label ingested
 ```
 
-`npm run watch` submits anything dropped into `drop/` (or `drop/alice/`, `drop/bob/`).
+Results go to `out/eval-results.json` and the tables between the `eval` markers in FINDINGS.md.
 
-Review gate: `REVIEW=on npm run worker`, then in another terminal `npm run review`,
-`npm run review -- approve <id>` or `npm run review -- reject <id> "reason"`.
+---
 
-## With a real model
+## 7. Configuration reference
 
-```bash
-cp .env.example .env    # set MODEL=anthropic/claude-sonnet-5-5 and ANTHROPIC_API_KEY=… (or another provider)
-npm run reset -- --yes && npm run seed -- fixtures/kelvara-handbook
-npm run eval -- --label seed
-for f in fixtures/sources/*; do npm run submit -- "$f"; done; WORKER_ONCE=1 npm run worker; WORKER_ONCE=1 npm run worker
-npm run export -- out/export && npm run eval -- --label ingested
-npm run test:llm        # T9, T10, T11, T14, T14b (otherwise recorded as BLOCKED)
-```
+All optional; set them in `.env` or on the command line.
 
-## Postgres
+| Variable | Default | Meaning |
+| --- | --- | --- |
+| `MODEL` | mock (or a default for the key found) | Mastra model-router id, e.g. `anthropic/claude-sonnet-5-5`; `mock` forces the scripted model |
+| `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY` | – | provider keys |
+| `STORE` | `libsql` | `libsql` (./data) or `pg` |
+| `PG_URL` | – | real Postgres for `STORE=pg`; without it, PGlite is used |
+| `REVIEW` | `off` | `on` holds every Knowledge write of the worker for `npm run review` |
+| `POC_USER` | `alice` | user for Studio, the CLI default and the MCP server (`alice` or `bob`) |
+| `BATCH_CAP` | `5` | max sources per ingest run |
+| `LEASE_TTL_MS` | `30000` | KB lease duration (renewed by heartbeat) |
+| `WORKER_ONCE` | – | `1`: the worker processes one batch and exits |
+| `DATA_DIR`, `RAW_DIR`, `OUT_DIR`, `KB_DB`, `QUEUE_DB` | `./data`, `./raw`, `./out`, … | where things are written (all git-ignored) |
 
-`npm run test:pg` runs the suite with `STORE=pg` on **PGlite** (embedded Postgres, served on
-127.0.0.1:55432 by the test process via `pglite-socket`), then writes the T16 parity report. For a
-real Postgres: `docker compose up -d`, then
-`STORE=pg PG_URL=postgres://poc:poc@localhost:55433/poc npm test` (results in `out/results/pg-docker/`;
-`PARITY_PG_DIR=pg-docker npm run parity` compares them with LibSQL).
-The ingest queue always lives in SQLite (`data/queue.db`); see FINDINGS "Spec vs reality".
+---
 
-## Scripts
+## 8. Scripts
 
 | Script | What it does |
 | --- | --- |
-| `dev` | Mastra dev server + Studio (Knowledge routes enabled) |
-| `seed -- <dir>` | Markdown bundle → Knowledge via `upsertPage` (idempotent), writes `out/seed-report.json` |
-| `export -- <dir>` | Knowledge → Markdown (deterministic), `index.md` per folder |
-| `submit -- <file>` | content-addressed copy into `raw/` + source row + KB job, one transaction |
-| `watch` | submits files dropped into `drop/` |
-| `worker` | lease-holding ingest worker (`WORKER_ONCE=1`, `LEASE_TTL_MS`, `BATCH_CAP`) |
+| `dev` | Mastra dev server + Studio on :4111 (Knowledge routes, scope middleware) |
+| `seed -- <dir>` | load a Markdown bundle into Knowledge (idempotent); writes `out/seed-report.json` |
+| `export -- <dir>` | Knowledge → Markdown files (deterministic), with an `index.md` per folder |
+| `submit -- <file>` | add a source to `raw/` and queue the KB job |
+| `watch` | submit every file dropped into `drop/` (or `drop/alice/`, `drop/bob/`) |
+| `worker` | the lease-holding ingest worker (Ctrl-C to stop) |
 | `review` | list / approve / reject held writes (`REVIEW=on`) |
-| `kb`, `ask` | CLI read/write through the Knowledge tools; reader agent |
-| `inspect` | dumps tables to `out/db-dump.json` |
-| `test` / `test:llm` / `test:pg` | deterministic / + LLM tests / on Postgres (+ parity) |
-| `eval -- --label <name>` | retrieval eval (recall@5), plus reader answers when a model is set |
-| `reset` | deletes `./data`, `./out`, `./raw` after confirmation |
+| `kb`, `ask` | CLI over the Knowledge tools; ask the reader agent |
+| `mcp`, `mcp:smoke` | the MCP server (stdio); a smoke test client |
+| `inspect` | dump knowledge and queue tables to `out/db-dump.json` |
+| `test`, `test:llm`, `test:pg`, `parity`, `typecheck` | tests (section 6) |
+| `eval -- --label <name>` | retrieval eval |
+| `reset` | delete `./data`, `./out` and `./raw` (asks first; `-- --yes` to skip) |
 
-## Layout
+---
+
+## 9. Project layout
 
 ```
-src/mastra/index.ts   Mastra instance: storage, Knowledge, readerAgent, ingestAgent, KNOWLEDGE_ROUTES, scope middleware
-src/config.ts         STORE=libsql|pg, paths, model selection
-src/scopes.ts         server-side scopes (org:kelvara + resource:<user>)
-src/knowledge.ts      Knowledge + scope declarations      src/agents.ts   agents + tool instrumentation
-src/seed.ts / export.ts / inspect.ts                      src/lib/        markdown mapping, mock model, tool runner
-src/ingest/           submit, queue (SQLite), worker (lease + fencing), watch, review gate, instructions.md
-tests/                vitest T1–T16 → out/results/*.json  eval/  questions.json, run-eval.ts
-fixtures/             seed KB (kelvara-handbook), 8 raw sources, 2 adversarial sources (injection, patient data)
+src/mastra/index.ts    Mastra instance: storage, Knowledge, reader + assistant agents, ingest workflow, routes
+src/agents.ts          agent definitions and instructions, tool instrumentation (lease fencing hook)
+src/knowledge.ts       the Knowledge instance and its scopes          src/scopes.ts  server-side user → scopes
+src/skills.ts          employee skills: chat tools + per-user resolver
+src/ingest/            submit, SQLite queue, worker (lease, fencing, review gate), watch, UI tool/workflow,
+                       instructions.md (the ingest agent's rules)
+src/mcp/               MCP server (stdio) and smoke client         src/cli.ts     the `kb` CLI
+src/seed.ts, export.ts Markdown ⇄ Knowledge                          src/lib/       Markdown mapping, mock model, tool runner
+tests/                 vitest T1–T16 (results → out/results/)       eval/          questions + runner
+fixtures/              seed KB, sample sources, adversarial sources
+docs/slack.md          research: exposing the assistant in Slack (not built)
+FINDINGS.md            what we learned;  prd.md  the original brief
 ```
+
+---
+
+## 10. Troubleshooting
+
+| Symptom | Fix |
+| --- | --- |
+| Studio says "another development server is running" / port 4111 busy | stop the other `npm run dev` (`lsof -nP -iTCP:4111`), then start again |
+| Studio shows old pages after a reseed | restart `npm run dev` (it keeps the database open) |
+| Want a clean slate | `npm run reset -- --yes && npm run seed -- fixtures/kelvara-handbook` |
+| Answers look like "(mock reader — keyword hits only)" | no key or `MODEL=mock`: set `MODEL` and a provider key in `.env`, restart |
+| "You have reached your specified API usage limits" | your provider's spend limit; raise it in the provider console |
+| `kelvara-kb` doesn't appear in Claude Code | open Claude Code from the project folder, approve the server in `/mcp`, restart Claude Code |
+| LLM tests recorded as BLOCKED | run `npm run test:llm` (plain `npm test` never calls a model) |
+| `T7`/`T8` flaky on a very busy machine | they spawn worker processes with short leases; rerun on an idle machine |
+
+---
+
+## 11. Limits: this is a prototype
+
+- **No real authentication.** Users are `alice` / `bob`, chosen by a header or `POC_USER`. Don't expose the
+  server beyond your laptop. A real deployment needs SSO in front and server-side scopes per user.
+- **Mastra Knowledge is alpha:** no revision history, no exact-revision citations, isolation only guaranteed
+  on the tool path. See FINDINGS "Gaps" and "Risks".
+- **Never put real patient data in it.** `raw/` is write-once by design, so a source can't be erased.
+- Exposing the assistant in Slack is researched in [docs/slack.md](docs/slack.md), not built.
