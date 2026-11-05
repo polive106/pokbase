@@ -1,10 +1,9 @@
 {
   "mcpServers": {
     "kelvara-kb": {
-      "command": "/Users/pierreolive/code/mastra-proto-kb/node_modules/.bin/tsx",
-      "args": ["/Users/pierreolive/code/mastra-proto-kb/src/mcp/stdio.ts"],
+      "command": "npx",
+      "args": ["tsx", "src/mcp/stdio.ts"],
       "env": {
-        "POC_ROOT": "/Users/pierreolive/code/mastra-proto-kb",
         "POC_USER": "alice"
       }
     }

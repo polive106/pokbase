@@ -1,4 +1,4 @@
-# Mastra Knowledge prototype (read + ingest)
+# pokbase — Mastra Knowledge prototype (read + ingest)
 
 Evaluation prototype: Mastra Knowledge (`@mastra/core` 1.82.0, alpha) as the store for an
 agent-maintained Markdown knowledge base, with a queued, lease-fenced ingestion pipeline.
