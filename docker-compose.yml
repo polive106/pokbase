@@ -1,0 +1,13 @@
+# Optional: a real, disposable Postgres. Not needed by default — STORE=pg uses PGlite (embedded,
+# no Docker). To use this instead: docker compose up -d && PG_URL=postgres://poc:poc@localhost:55433/poc STORE=pg npm test
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: poc
+      POSTGRES_PASSWORD: poc
+      POSTGRES_DB: poc
+    ports:
+      - "55433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
