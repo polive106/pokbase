@@ -2,8 +2,8 @@
 
 - **Date:** 2026-11-05
 - **Dataset:** **Kelvara Health**, a fictional EU digital-health startup under heavy regulation (MDR class IIa software, GDPR, HDS hosting, ISO 13485). It replaced the PRD's "Northwind Orchards" fixtures at the owner's request (see "Spec vs reality" 12).
-  - A `reglementation/` section was then added: 10 pages **in French** summarising the real French and EU rules (MDR/EUDAMED, ANSM, HDS v2, télésurveillance/LATM, PECAN, Ségur, INS, CNIL, EHDS). They are researched from official sources on 2026-11-05, each carries a `verified` date, and divergent secondary sources are flagged. The eval gained 6 French questions (q31–q36).
-  - Then **the whole dataset was translated into French**: all 22 pages, the 8 sources, both adversarial sources and all 36 eval questions. Page keys stay as English slugs, and the eval `kind: french` now just marks questions that were French from the start. Tests and the eval accept French values (`14 mars`, `30 jours`, `remplacée`, French abstention phrases). After translation the deterministic suite passes 17/17 on LibSQL. French keyword retrieval (`seed-fr-retrieval`, no LLM) scores recall@5 0.94 on seed-phase questions; the misses are q09 (one of two pages) and q11 ("Qui stocke les données de nos patients ?": only generic words, so Ardoise Cloud falls out of the top 5). The `seed` table, with LLM answers, was run on the earlier English wording. With all 22 pages, keyword retrieval (`seed-fr-retrieval`) scores recall@5 1.0 on the 8 French questions and 0.92 on seed-phase questions overall.
+  - A `regulations/` section followed: 10 pages summarising the real French and EU rules (MDR/EUDAMED, ANSM, HDS v2, télésurveillance/LATM, PECAN, Ségur, INS, CNIL, EHDS), researched from official sources on 2026-11-05, each with a `verified` date, and divergent secondary sources flagged.
+  - On 2026-11-06 the dataset was **enriched to 34 pages** (customers, DPO and vigilance-officer roles, complaint handling, software release, supplier management, training, release history, post-market surveillance plan, serious-incident term, data-subject requests) and the eval to 46 questions (q31–q46). It was briefly translated into French and then put back in English; only `products/kelvara-suivi` and `src-07` stay French, as the PRD asks. After enrichment the deterministic suite passes 17/17 on LibSQL, and keyword retrieval (`seed-en-enriched`, no LLM) scores recall@5 0.90 on the 38 seed-phase questions. The misses are q11 and q14 (generic words; the French page), q39 ("before a release reaches every hospital": the release procedure falls out of the top 5) and q44 (one of two pages). The `seed` table, with LLM answers, was run on the 22-page version.
   - **Re-run on Kelvara:** the deterministic suite (T1–T8, T12, T12b, T13, T15, T16) on LibSQL, PGlite and Docker Postgres 17. Also the seed-phase eval: retrieval for all 30 questions, plus reader-agent answers for q01–q21.
   - **Not re-run on Kelvara:** the LLM tests (T9–T11, T14 and the new T14b) and the ingested-phase eval.
     - Partway through the eval the Anthropic key hit its usage limit: "You have reached your specified API usage limits. You will regain access on 2026-12-01 at 00:00 UTC."
@@ -59,8 +59,8 @@ Without (3), Knowledge's own concurrency control silently loses updates. A write
 
 | Test | Result | Key observation |
 | --- | --- | --- |
-| T1 Markdown round trip | OBSERVED | 22/22 pages (12 original plus 10 French regulatory pages). Front matter: `title` and `description` kept natively, everything else (including the controlled-document fields) relocated and restored; nothing lost. Links: all targets and texts preserved; 59 absolute links normalized to relative. Footnotes intact. Bodies differ only in link form. Re-seed: 22 × `unchanged`. |
-| T2 Deterministic seed and export | **PASS** | Two fresh DBs export byte-identical files (31 files). The same DB exported twice is also identical. |
+| T1 Markdown round trip | OBSERVED | 34/34 pages. Front matter: `title` and `description` kept natively, everything else (including the controlled-document fields) relocated and restored; nothing lost. Links: all targets and texts preserved; 138 absolute links normalized to relative. Footnotes intact. Bodies differ only in link form. Re-seed: 34 × `unchanged`. |
+| T2 Deterministic seed and export | **PASS** | Two fresh DBs export byte-identical files (45 files). The same DB exported twice is also identical. |
 | T3 Concurrent page writes | OBSERVED | No `expectedVersion`, parallel: LibSQL accepted both (v2, v3), last writer silently wins; Postgres accepted one and refused the other (`Knowledge record version conflict: <id>`). Same `expectedVersion`: one succeeds, the other gets the same error on both stores. Sequential stale write without `expectedVersion`: **accepted** (lost update); with a stale `expectedVersion`: refused. |
 | T4 Scope isolation | **PASS** (tool path) / OBSERVED (host) | As Alice, every attempt on Bob's page (by ref, id, scope, search, scoped search, list, write, note, Bob-stamped note) was refused as "not found", with nothing leaked. Bob reads his own page. Host path: `upsertPage` into `resource:bob` by any caller succeeds, and `getPage({read:'all'})` returns it: no checks, as documented. `explainAccess` returns `reason: 'hidden'` (host-only). |
 | T5 Submit and dedupe | **PASS** | `src-05` (and `src-01` again) → `duplicate`. One raw file plus sidecar, one source row, one job. `raw/` hashes and mtimes unchanged. |
@@ -93,7 +93,7 @@ With `anthropic/claude-sonnet-5-5` (T9, T10), **on the earlier Northwind dataset
 - **Weakness:** it rewrote short pages whole instead of using ranged edits. Nothing was lost (verified by diff), but every edit replaces the full body, which raises the stakes of a bad edit when there is no revision history.
 
 What the platform enforces regardless of model quality:
-- **Long pages can't be rewritten whole.** A whole-body write to a page longer than one read (1,000 tokens by default) is refused with an explicit error. The agent has to use ranged edits. The fixture's 1,962-word `playbooks/incident-vigilance` exercises this.
+- **Long pages can't be rewritten whole.** A whole-body write to a page longer than one read (1,000 tokens by default) is refused with an explicit error. The agent has to use ranged edits. The fixture's 1,987-word `playbooks/incident-vigilance` exercises this.
 - **Ranged edits must carry `expectedVersion`.** A range is applied against the version it was read at.
 - **Plain writes aren't protected.** A whole-body write *without* `expectedVersion` is accepted against the current version, which is a lost-update risk (T3). The ingest instructions require `expectedVersion`, and T10 measures whether the model complies.
 - **The mock run** (`out/ingest-runs/*.json`) shows the logging: per tool call it records tool, page, read/write, `expectedVersion` used, ranged or whole, ok/error and timing, plus pages created and changed, notes, tokens and duration.
@@ -187,17 +187,17 @@ Keyword retrieval through `knowledge_search`, 30 questions (Kelvara dataset), to
 | unanswerable | 4 | – | 2/2 | – |
 | contradiction | 2 | 1 | – | – |
 
-**seed-fr-retrieval** (libsql, keyword, LLM: none (retrieval only))
+**seed-en-enriched** (libsql, keyword, LLM: none (retrieval only))
 
 | Group | n | recall@5 | abstention | both sides |
 | --- | --- | --- | --- | --- |
-| seed | 28 | 0.94 | – | – |
+| seed | 38 | 0.9 | – | – |
 | ingested | 8 | 0.71 | – | – |
-| exact | 8 | 0.75 | – | – |
-| paraphrase | 7 | 0.79 | – | – |
-| multi-page | 4 | 1 | – | – |
+| exact | 17 | 0.88 | – | – |
+| paraphrase | 10 | 0.8 | – | – |
+| multi-page | 7 | 0.79 | – | – |
 | superseded | 3 | 1 | – | – |
-| french | 8 | 1 | – | – |
+| french | 3 | 1 | – | – |
 | unanswerable | 4 | – | – | – |
 | contradiction | 2 | 1 | – | – |
 <!-- eval:end -->
@@ -244,9 +244,9 @@ Keyword retrieval through `knowledge_search`, 30 questions (Kelvara dataset), to
 11. **Run scopes on the ingest agent:** an agent `scopes` function (`() => ['org:kelvara']`) fixes them server-side regardless of the caller.
 12. **Fixtures (§6):** the owner asked for a healthcare seed, so the dataset is **Kelvara Health** (`fixtures/kelvara-handbook`, org scope `org:kelvara`), not Northwind Orchards.
     - The §6.1 structure is kept, with every required property:
-      - 12 concept pages plus the reserved `index.md` and `log.md` (and, added later, 10 regulatory pages in French under `reglementation/`);
+      - 12 concept pages plus the reserved `index.md` and `log.md` (and, added later, 10 regulatory pages under `regulations/` and 12 more concept pages);
       - one deprecated page (`policies/data-retention-2024`) and one draft (`glossary/significant-change`);
-      - one page in French (`products/kelvara-suivi`) and one long page (`playbooks/incident-vigilance`, 1,962 words);
+      - one page in French (`products/kelvara-suivi`) and one long page (`playbooks/incident-vigilance`, 1,987 words);
       - absolute and relative links, and keyed footnotes.
     - Controlled documents add `doc_id`, `revision`, `owner`, `review_due` and `regulatory_refs` front matter.
     - The §6.2 sources keep their expected effects, mapped to the new domain:

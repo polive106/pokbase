@@ -1,38 +1,36 @@
 ---
 type: Supplier
 title: Linnet Medical
-description: Fabricant du patch ECG mono-piste et du socle de charge utilisés avec Kelvara Rhythm ; fournisseur critique au sens des achats ISO 13485.
-tags: [fournisseur, dispositif-medical, fournisseur-critique]
+description: Maker of the single-lead ECG patch and charging dock used with Kelvara Rhythm; a critical supplier under ISO 13485 purchasing controls.
+tags: [supplier, medical-device, critical-supplier]
 status: stable
-lang: fr
 generated: { by: "human:fixture", at: "2026-10-01T09:00:00Z" }
 sources:
   - id: s1
     resource: "src:ops-memo-014"
-    title: "Note d'exploitation n° 14"
+    title: "Operations memo 14"
   - id: s2
     resource: "src:qa-linnet-2025"
-    title: "Accord qualité Linnet Medical 2025"
+    title: "Linnet Medical quality agreement 2025"
 ---
 
 # Linnet Medical
 
-Linnet Medical fabrique le patch ECG mono-piste (dispositif de classe IIa marqué CE sous le certificat
-de Linnet), le socle de charge et les enveloppes de retour prépayées utilisés avec
+Linnet Medical makes the single-lead ECG patch (a CE-marked class IIa device under Linnet's own
+certificate), the charging dock and the prepaid return envelopes used with
 [Kelvara Rhythm](/products/kelvara-rhythm.md).[^s2]
 
-## Conditions
+## Terms
 
-- Délai de livraison : 10 jours ouvrés à compter du bon de commande.[^s2]
-- L'accord qualité est renouvelé tous les 2 ans ; la période en cours se termine le 31 décembre 2027.[^s2]
-- Fournisseur critique : audité tous les 2 ans. Le dernier audit (mai 2026) n'a relevé aucune
-  non-conformité majeure.[^s2]
-- Les livraisons sont réceptionnées en salle de réception 3 du
-  [centre de surveillance d'Elmhaven](/sites/elmhaven-monitoring-centre.md).[^s1]
+- Lead time: 10 working days from purchase order.[^s2]
+- The quality agreement is renewed every 2 years; the current term ends on 31 December 2027.[^s2]
+- Critical supplier: audited every 2 years. The last audit (May 2026) found no major nonconformity.[^s2]
+- Deliveries are received in goods-in room 3 of the [Elmhaven monitoring centre](/sites/elmhaven-monitoring-centre.md).[^s1]
 
-Les patchs retournés sont reconditionnés au [centre de secours de Thornfield](../sites/thornfield-backup-centre.md).
-Linnet est le fabricant du patch : les défauts du patch lui sont signalés selon le
-[playbook incidents et vigilance](/playbooks/incident-vigilance.md).
+Returned patches are reprocessed at the [Thornfield backup centre](../sites/thornfield-backup-centre.md).
+Linnet is the manufacturer of the patch, so patch defects are reported to Linnet under the
+[incident and vigilance playbook](/playbooks/incident-vigilance.md). Audits and supplier corrective
+action requests follow the [supplier management procedure](../policies/supplier-management.md).
 
-[^s1]: Note d'exploitation n° 14, section 2.
-[^s2]: Accord qualité Linnet Medical 2025, clauses 3–5.
+[^s1]: Operations memo 14, section 2.
+[^s2]: Linnet Medical quality agreement 2025, clauses 3–5.

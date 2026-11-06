@@ -1,7 +1,7 @@
-# Bulletin des services généraux n° 31
+# Facilities bulletin 31
 
-Date : 2026-10-22. Émis par les services généraux.
+Date: 2026-10-22. Issued by facilities management.
 
-Le centre de surveillance d'Elmhaven ferme le 14 mars 2027 pour la rénovation de sa salle de lecture.
-Pendant la fermeture, les 6 postes de tri urgent sont transférés au centre de secours de Thornfield et
-toute la lecture ECG s'y fait.
+The Elmhaven monitoring centre closes on 14 March 2027 for the refit of its review room. During the
+closure, the 6 urgent-triage stations move to the Thornfield backup centre and all ECG review is done
+there.

@@ -1,42 +1,42 @@
 ---
 type: Supplier
 title: Ardoise Cloud
-description: Hébergeur certifié HDS de toutes les données patients de Kelvara ; sous-traitant ultérieur dans chaque contrat de sous-traitance (DPA) avec les hôpitaux.
-tags: [fournisseur, hebergement, hds, sous-traitant]
+description: HDS-certified hosting provider for all Kelvara patient data; a subprocessor under every hospital data processing agreement.
+tags: [supplier, hosting, hds, subprocessor]
 status: stable
-lang: fr
 generated: { by: "human:fixture", at: "2026-10-01T09:00:00Z" }
 sources:
   - id: s1
     resource: "src:contract-ardoise-2025"
-    title: "Contrat d'hébergement Ardoise Cloud 2025"
+    title: "Ardoise Cloud hosting agreement 2025"
   - id: s2
     resource: "src:dpa-ardoise-2025"
-    title: "Accord de sous-traitance des données Ardoise Cloud 2025"
+    title: "Ardoise Cloud data processing agreement 2025"
 ---
 
 # Ardoise Cloud
 
-Ardoise Cloud héberge toutes les données patients de Kelvara, pour [Kelvara Rhythm](/products/kelvara-rhythm.md)
-et [Kelvara Suivi](/products/kelvara-suivi.md), dans deux centres de données en France. Il est certifié
-HDS (Hébergeur de Données de Santé) et ISO/IEC 27001.[^s1] Son certificat doit relever du référentiel
-HDS v2 (voir [certification HDS](/reglementation/certification-hds.md)).
+Ardoise Cloud hosts all Kelvara patient data, for [Kelvara Rhythm](/products/kelvara-rhythm.md) and
+[Kelvara Suivi](/products/kelvara-suivi.md), in two data centres in France. It is certified HDS
+(Hébergeur de Données de Santé) and ISO/IEC 27001.[^s1] Its certificate must be under the HDS v2
+referential (see [HDS certification](/regulations/hds-certification.md)).
 
-## Niveaux de service
+## Service levels
 
-- Disponibilité visée : 99,9 % par mois, mesurée par la supervision de Kelvara.[^s1]
-- Pénalité (crédit de service) : 5 % de la redevance mensuelle par tranche de 0,1 point sous l'objectif.[^s1]
-- Sauvegardes toutes les 15 minutes, supprimées avec les données selon la
-  [politique de conservation des données](../policies/data-retention.md) ; restauration en 4 heures.[^s1]
-- Support : 6 h – 22 h (heure de Paris), tous les jours.[^s1]
+- Availability target: 99.9% per month, measured by Kelvara's own monitoring.[^s1]
+- Service credit: 5% of the monthly fee for each 0.1 point below the target.[^s1]
+- Backups every 15 minutes, deleted with the data under the
+  [data retention policy](../policies/data-retention.md); restore within 4 hours.[^s1]
+- Support desk: 06:00–22:00 (Paris time), every day.[^s1]
 
-## Protection des données
+## Data protection
 
-- Ardoise est sous-traitant ultérieur dans chaque DPA hospitalier. Il doit prévenir Kelvara dans les
-  12 heures après avoir pris connaissance d'une violation touchant les données de Kelvara.[^s2]
-- Son relais SMS intégré envoie aux patients les rappels de Kelvara Suivi.[^s1]
+- Ardoise is a subprocessor in every hospital DPA. It must tell Kelvara within 12 hours of becoming
+  aware of a breach affecting Kelvara data.[^s2]
+- Its built-in SMS relay sends the Kelvara Suivi reminders to patients.[^s1]
 
-Les pannes et violations sont traitées selon le [playbook incidents et vigilance](/playbooks/incident-vigilance.md).
+Outages and breaches are handled with the [incident and vigilance playbook](/playbooks/incident-vigilance.md).
+Ardoise is reviewed every year under the [supplier management procedure](/policies/supplier-management.md).
 
-[^s1]: Contrat d'hébergement Ardoise Cloud 2025, annexe B.
-[^s2]: Accord de sous-traitance des données Ardoise Cloud 2025, annexe 2.
+[^s1]: Ardoise Cloud hosting agreement 2025, schedule B.
+[^s2]: Ardoise Cloud data processing agreement 2025, schedule 2.

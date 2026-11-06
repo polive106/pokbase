@@ -1,6 +1,7 @@
-# Journal des modifications
+# Change log
 
-Historique réservé. Le seed ignore ce fichier.
+Reserved change history. The seed skips this file.
 
-- 2026-10-01 — fixture créée (human:fixture)
-- 2026-11-05 — section réglementation ajoutée et contenu traduit en français (human:fixture)
+- 2026-10-01 — fixture created (human:fixture)
+- 2026-11-05 — regulations section added (human:fixture)
+- 2026-11-06 — content back in English (Kelvara Suivi stays in French); customers, roles, procedures and plans added (human:fixture)

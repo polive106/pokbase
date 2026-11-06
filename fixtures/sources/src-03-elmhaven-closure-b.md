@@ -1,7 +1,6 @@
-# E-mail des opérations clients
+# Customer operations email
 
-Date : 2026-10-23. De l'équipe succès client hôpitaux.
+Date: 2026-10-23. From the hospital customer success team.
 
-Rappel aux hôpitaux clients : le centre de surveillance d'Elmhaven ferme le 28 mars 2027 pour la
-rénovation de sa salle de lecture. Merci de ne pas démarrer de nouveaux examens Kelvara Rhythm de
-7 jours dans la semaine qui précède la fermeture.
+Reminder for hospital customers: the Elmhaven monitoring centre closes on 28 March 2027 for its
+review-room refit. Please do not start new 7-day Kelvara Rhythm exams in the week before the closure.

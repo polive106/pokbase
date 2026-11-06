@@ -1,14 +1,13 @@
-# Ticket de réclamation CMP-2026-0412 (export de l'outil de support)
+# Complaint ticket CMP-2026-0412 (export from the support tool)
 
-Reçu le : 2026-10-28 par le support d'Elmhaven, de la part du service de cardiologie d'un hôpital
-client.
+Received: 2026-10-28 by the Elmhaven support desk, from the cardiology department of a hospital
+customer.
 
-Patiente : Margot Lindqvist, née le 14/02/1951, numéro de dossier hospitalier HRN-58210-K.
+Patient: Margot Lindqvist, born 14/02/1951, hospital record number HRN-58210-K.
 
-Description : le patch Linnet de la patiente (micrologiciel 1.8) a cessé d'envoyer ses données au bout
-de 36 heures. Rhythm Review n'a pas signalé l'interruption, si bien que le technicien a validé un
-compte rendu couvrant seulement les 36 premières heures d'un examen de 7 jours. Le cardiologue a
-remarqué l'enregistrement trop court et a demandé un nouvel examen.
+Description: the patient's Linnet patch (firmware 1.8) stopped uploading after 36 hours. Rhythm Review
+did not show the gap, so the technician signed off a report that covered only the first 36 hours of a
+7-day exam. The cardiologist noticed the short recording and asked for a new exam.
 
-Actions : ticket ouvert ; PRRC informée pour décider du caractère déclarable ; Linnet Medical sollicité
-pour analyser le défaut de reconnexion Bluetooth du micrologiciel 1.8 (SCAR-2026-07).
+Actions: ticket opened; PRRC informed for a reportability decision; Linnet Medical asked to investigate
+the firmware 1.8 Bluetooth reconnection fault (SCAR-2026-07).

@@ -1,3 +1,3 @@
-# Référentiel interne de Kelvara Health
+# Kelvara Health handbook
 
-Liste réservée. Le seed ignore ce fichier ; `npm run export` régénère un `index.md` par dossier.
+Reserved listing. The seed skips this file; `npm run export` regenerates one `index.md` per folder.

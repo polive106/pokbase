@@ -1,49 +1,46 @@
 ---
 type: Policy
-title: Politique de conservation des données
-description: Durées de conservation en vigueur des enregistrements ECG bruts et des enregistrements qualité, et confirmation des suppressions aux hôpitaux.
-tags: [politique, protection-des-donnees, conservation, rgpd]
+title: Data retention policy
+description: Current retention periods for raw ECG recordings and quality records, and how deletion is confirmed to hospitals.
+tags: [policy, data-protection, retention, gdpr]
 status: stable
-lang: fr
 doc_id: POL-007
 revision: 3
 owner: "role:dpo"
 review_due: "2027-03-31"
-regulatory_refs: ["RGPD art. 5(1)(e)", "RGPD art. 28", "MDR art. 10(8)"]
+regulatory_refs: ["GDPR Art. 5(1)(e)", "GDPR Art. 28", "MDR Art. 10(8)"]
 generated: { by: "human:fixture", at: "2026-10-01T09:00:00Z" }
 sources:
   - id: s1
     resource: "src:qrb-2025-03"
-    title: "Compte rendu du comité qualité, mars 2025"
+    title: "Quality review board minutes, March 2025"
 ---
 
-# Politique de conservation des données
+# Data retention policy
 
-Cette politique remplace la [politique de conservation des données de 2024](/policies/data-retention-2024.md).[^s1]
-Kelvara traite les enregistrements pour le compte des hôpitaux : lorsque le contrat de sous-traitance
-d'un hôpital fixe une durée plus courte, c'est la durée de l'hôpital qui s'applique.[^s1]
+This policy replaces the [2024 data retention policy](/policies/data-retention-2024.md).[^s1]
+Kelvara processes recordings on behalf of hospitals: where a hospital's data processing agreement sets
+a shorter period, the hospital's period applies.[^s1]
 
-## Enregistrements ECG bruts
+## Raw ECG recordings
 
-Les enregistrements bruts sont conservés **30 jours** après la signature du compte rendu par le
-cardiologue, puis supprimés d'[Ardoise Cloud](/suppliers/ardoise-cloud.md), sauvegardes comprises.[^s1]
-Le compte rendu signé est conservé dans le système d'information de l'hôpital, pas par Kelvara.
+Raw recordings are kept for **30 days** after the cardiologist signs the report, then deleted from
+[Ardoise Cloud](/suppliers/ardoise-cloud.md), backups included.[^s1] The signed report itself is kept
+in the hospital's record system, not by Kelvara.
 
 ## Exceptions
 
-- Les enregistrements liés à une réclamation ou à un dossier de vigilance ouvert sont gelés
-  (conservation conservatoire) jusqu'à la clôture du dossier.[^s1]
-- Les enregistrements utilisés dans l'évaluation clinique de [Kelvara Rhythm](../products/kelvara-rhythm.md)
-  sont conservés sous forme pseudonymisée, selon le plan d'évaluation clinique.[^s1]
+- Recordings linked to an open complaint or vigilance case stay on legal hold until the case is closed.[^s1]
+- Recordings used in the [Kelvara Rhythm](../products/kelvara-rhythm.md) clinical evaluation are kept
+  pseudonymised, under the clinical evaluation plan.[^s1]
 
-## Certificats de suppression
+## Deletion certificates
 
-Les hôpitaux reçoivent un certificat de suppression dans les 5 jours ouvrés suivant une demande de
-suppression.[^s1]
+Hospitals receive a deletion certificate within 5 working days of a deletion request.[^s1]
 
-## Enregistrements qualité
+## Quality records
 
-Les dossiers de réclamation, de CAPA et de vigilance sont conservés 10 ans après la mise sur le marché
-de la dernière unité de la version du dispositif.[^s1]
+Complaint, CAPA and vigilance records are kept for 10 years after the last unit of the device version
+is placed on the market.[^s1]
 
-[^s1]: Compte rendu du comité qualité, mars 2025, point 4.
+[^s1]: Quality review board minutes, March 2025, item 4.

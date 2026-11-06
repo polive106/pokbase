@@ -1,12 +1,10 @@
-# Bulletin sécurité n° 12
+# Security bulletin 12
 
-Date : 2026-10-25.
+Date: 2026-10-25.
 
-Exigences supplémentaires d'accès aux données patients, applicables immédiatement :
+Additional patient-data access requirements, effective immediately:
 
-- Les comptes à privilèges (ingénieurs support, administrateurs cloud) se connectent avec une clé de
-  sécurité matérielle FIDO2.
-- Les droits d'accès aux données patients sont recertifiés tous les 6 mois par le propriétaire des
-  données.
-- Chaque compte rendu de recertification est conservé avec les traces d'accès, pendant la même durée de
-  3 ans.
+- Privileged accounts (support engineers, cloud administrators) must sign in with a FIDO2 hardware
+  security key.
+- Access rights to patient data are re-certified every 6 months by the data owner.
+- Each re-certification record is stored with the access logs for the same 3-year period.

@@ -1,36 +1,38 @@
 ---
 type: Role
-title: Personne chargée de veiller au respect de la réglementation (PRRC)
-description: Le rôle prévu par l'article 15 du MDR, responsable de la conformité des versions, de la documentation technique, de la surveillance après commercialisation et de la vigilance.
-tags: [role, reglementaire, mdr]
+title: Person responsible for regulatory compliance (PRRC)
+description: The MDR Article 15 role accountable for release conformity, technical documentation, post-market surveillance and vigilance reporting.
+tags: [role, regulatory, mdr]
 status: stable
-lang: fr
-regulatory_refs: ["MDR art. 15"]
+regulatory_refs: ["MDR Art. 15"]
 generated: { by: "human:fixture", at: "2026-10-01T09:00:00Z" }
 sources:
   - id: s1
     resource: "src:org-chart-2026"
-    title: "Organigramme 2026"
+    title: "Organisation chart 2026"
 ---
 
-# Personne chargée de veiller au respect de la réglementation (PRRC)
+# Person responsible for regulatory compliance (PRRC)
 
-La PRRC est un rôle, pas une personne nommée. L'article 15 du MDR impose à Kelvara d'en avoir une ; le
-rôle est tenu par la directrice ou le directeur qualité et affaires réglementaires, avec une PRRC
-suppléante en cas d'absence.[^s1]
+The PRRC is a role, not a named person. MDR Article 15 requires Kelvara to have one; the role is held
+by the head of quality and regulatory affairs, with a deputy PRRC for absences.[^s1]
 
-## Responsabilités
+## Responsibilities
 
-- Vérifie la conformité de chaque version de [Kelvara Rhythm](/products/kelvara-rhythm.md) avant sa
-  mise à disposition, et tient à jour la documentation technique et la déclaration UE de conformité.[^s1]
-- Décide si un incident grave suspecté doit être déclaré, selon le
-  [playbook incidents et vigilance](/playbooks/incident-vigilance.md).[^s1]
-- Valide le classement de chaque modification selon la définition de la
-  [modification significative](../glossary/significant-change.md).[^s1]
-- Approuve les changements chez les fournisseurs [Linnet Medical](/suppliers/linnet-medical.md) et
+- Checks that each [Kelvara Rhythm](/products/kelvara-rhythm.md) release conforms before it ships
+  (final gate of the [software release procedure](/policies/software-release.md)), and keeps the
+  technical documentation and EU declaration of conformity up to date.[^s1]
+- Decides whether a suspected serious incident must be reported, as set out in the
+  [incident and vigilance playbook](/playbooks/incident-vigilance.md), with the
+  [vigilance officer](/people/vigilance-officer.md) preparing the case.[^s1]
+- Signs off the classification of every change against the
+  [significant change](../glossary/significant-change.md) definition.[^s1]
+- Approves supplier changes with [Linnet Medical](/suppliers/linnet-medical.md) and
   [Ardoise Cloud](/suppliers/ardoise-cloud.md).[^s1]
-- Anime la veille réglementaire trimestrielle et tient la [cartographie réglementaire](/reglementation/cartographie.md).[^s1]
-- Supervise les obligations réglementaires du [centre de surveillance d'Elmhaven](/sites/elmhaven-monitoring-centre.md)
-  et du [centre de secours de Thornfield](/sites/thornfield-backup-centre.md).
+- Owns the [post-market surveillance plan](/plans/post-market-surveillance.md) and the periodic safety
+  update report.[^s1]
+- Chairs the quarterly regulatory watch and owns the [regulatory map](/regulations/regulatory-map.md).[^s1]
+- Oversees the regulatory duties of the [Elmhaven monitoring centre](/sites/elmhaven-monitoring-centre.md)
+  and the [Thornfield backup centre](/sites/thornfield-backup-centre.md).
 
-[^s1]: Organigramme 2026, section qualité et réglementaire.
+[^s1]: Organisation chart 2026, quality and regulatory section.

@@ -1,7 +1,6 @@
-# Compte rendu du comité qualité — octobre 2026, point 2
+# Quality review board minutes — October 2026, item 2
 
-À compter du 1er novembre 2026, les enregistrements ECG bruts sont conservés **45 jours** après la
-signature du compte rendu (au lieu de 30 jours), pour permettre aux hôpitaux de demander une seconde
-lecture. Toutes les autres règles de la politique de conservation des données restent inchangées, y
-compris la durée plus courte de tout hôpital dont le DPA l'exige. Cette décision remplace la durée de
-30 jours décidée en mars 2025.
+Effective 1 November 2026, raw ECG recordings are kept for **45 days** after the report is signed
+(previously 30 days), so that hospitals can ask for a second read. All other rules of the data
+retention policy stay the same, including the shorter period of any hospital whose DPA requires it.
+This replaces the 30-day period decided in March 2025.

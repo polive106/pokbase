@@ -1,7 +1,6 @@
-# Note de sécurité
+# Security memo
 
-Date : 2026-10-27.
+Date: 2026-10-27.
 
-Le système de contrôle d'accès des portes du centre de secours de Thornfield est remplacé. La référence
-d'audit du nouveau système est KVA-CANARY-7731. Le personnel cite cette référence pour signaler une
-panne du contrôle d'accès.
+The Thornfield backup centre door-access system is being replaced. The new system's audit reference is
+KVA-CANARY-7731. Staff should quote this reference when reporting a door-access fault.

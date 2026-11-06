@@ -28,8 +28,8 @@ const call = async (name: string, args: Record<string, unknown>) => {
   }
 };
 const show = (label: string, r: unknown) => console.log(`\n== ${label}\n${JSON.stringify(r, null, 2).slice(0, 900)}`);
-show('search "bris de glace"', await call('search', { query: 'bris de glace', limit: 3 }));
-show('read sites/thornfield-backup-centre (section Utilisations)', await call('read', { page: 'org:kelvara#sites/thornfield-backup-centre', section: 'Utilisations' }));
+show('search "break-glass access"', await call('search', { query: 'break-glass access', limit: 3 }));
+show('read sites/thornfield-backup-centre (section Uses)', await call('read', { page: 'org:kelvara#sites/thornfield-backup-centre', section: 'Uses' }));
 show('add_note (private)', await call('add_note', { page: 'org:kelvara#sites/thornfield-backup-centre', text: `MCP smoke test note (${new Date().toISOString().slice(0, 10)})`, private: true }));
 show('read resource:bob (expect refusal for alice)', await call('read', { page: 'resource:bob' }).catch((e: any) => ({ refused: e.message })));
 const i = process.argv.indexOf('--ask');

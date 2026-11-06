@@ -1,48 +1,45 @@
 ---
 type: Product
 title: Kelvara Rhythm
-description: Logiciel dispositif médical de classe IIa qui signale les épisodes suspects de fibrillation atriale dans les ECG mono-piste d'un patch, pour relecture par un cardiologue.
-tags: [produit, dispositif-medical, mdr, logiciel-dm]
+description: Class IIa software medical device that flags suspected atrial fibrillation in single-lead patch ECGs for cardiologist review.
+tags: [product, medical-device, mdr, samd]
 status: stable
-lang: fr
-regulatory_refs: ["MDR annexe VIII règle 11", "IEC 62304 classe B", "ISO 14971"]
+regulatory_refs: ["MDR Annex VIII rule 11", "IEC 62304 class B", "ISO 14971"]
 generated: { by: "human:fixture", at: "2026-10-01T09:00:00Z" }
 sources:
   - id: s1
     resource: "src:techfile-rhythm-2-4"
-    title: "Documentation technique Kelvara Rhythm, v2.4"
+    title: "Kelvara Rhythm technical documentation, v2.4"
 ---
 
 # Kelvara Rhythm
 
-Kelvara Rhythm est un logiciel qui analyse les enregistrements ECG mono-piste d'un patch porté par le
-patient et signale les épisodes suspects de fibrillation atriale (FA) pour relecture par un
-cardiologue. C'est un dispositif médical de classe IIa selon la règle 11 de l'annexe VIII du MDR,
-marqué CE depuis juin 2025 avec un certificat de l'organisme notifié Norvane Certification. Sa classe
-de sécurité logicielle selon l'IEC 62304 est B.[^s1]
+Kelvara Rhythm is software that analyses single-lead ECG recordings from a wearable patch and flags
+suspected atrial fibrillation (AF) episodes for review by a cardiologist. It is a class IIa medical
+device under MDR Annex VIII rule 11, CE-marked since June 2025 with a certificate from the notified
+body Norvane Certification. Its software safety class under IEC 62304 is B.[^s1]
 
 ## Modules
 
-Le produit comprend trois modules : **Rhythm Capture** (appairage du patch et envoi des données),
-**Rhythm Review** (tri par les techniciens) et **Rhythm Report** (signature par le cardiologue).[^s1]
-La version actuelle est la 2.4.
+Three modules make up the product: **Rhythm Capture** (patch pairing and upload), **Rhythm Review**
+(technician triage) and **Rhythm Report** (cardiologist sign-off).[^s1] The current release is 2.4;
+see the [release history](/products/rhythm-release-history.md).
 
-## Destination et limites
+## Intended use and limits
 
-- Adultes avec suspicion de FA paroxystique, pour des examens de 7 jours au plus.[^s1]
-- Pas pour la surveillance en temps réel, ni pour les patients porteurs d'un stimulateur ou d'un
-  défibrillateur implanté.[^s1]
-- Chaque signalement de FA est confirmé par un cardiologue ; le logiciel ne pose jamais de diagnostic
-  seul.[^s1]
-- Dans l'évaluation clinique de 2025, la sensibilité pour les épisodes de FA de 30 secondes ou plus
-  était de 95,1 % et la spécificité de 97,3 %.[^s1]
+- Adults with suspected paroxysmal AF, for exams of up to 7 days.[^s1]
+- Not for real-time monitoring, and not for patients with an implanted pacemaker or defibrillator.[^s1]
+- Every AF flag is confirmed by a cardiologist; the software never makes a diagnosis on its own.[^s1]
+- In the 2025 clinical evaluation, sensitivity for AF episodes of 30 seconds or more was 95.1% and
+  specificity 97.3%.[^s1]
 
-Les enregistrements proviennent du patch [Linnet Medical](/suppliers/linnet-medical.md), seul patch
-validé avec Rhythm, et sont hébergés par [Ardoise Cloud](../suppliers/ardoise-cloud.md). Chaque
-évolution est évaluée selon la définition de la [modification significative](/glossary/significant-change.md)
-avant sa mise en production, et les problèmes sur le terrain suivent le
-[playbook incidents et vigilance](../playbooks/incident-vigilance.md). Le produit n'est pas encore
-remboursé : voir [télésurveillance et LATM](/reglementation/telesurveillance-latm.md) et
-[PECAN](../reglementation/pecan.md) pour le plan d'accès au marché.
+Recordings come from the [Linnet Medical](/suppliers/linnet-medical.md) patch, the only patch validated
+with Rhythm, and are hosted by [Ardoise Cloud](../suppliers/ardoise-cloud.md). Every change is assessed
+against the [significant change](/glossary/significant-change.md) definition and released under the
+[software release procedure](/policies/software-release.md). Problems in the field follow the
+[incident and vigilance playbook](../playbooks/incident-vigilance.md), and the
+[post-market surveillance plan](/plans/post-market-surveillance.md) tracks performance over time.
+Rhythm is not yet reimbursed: see [remote monitoring reimbursement](/regulations/telesurveillance-latm.md)
+and [PECAN](../regulations/pecan.md) for the market-access plan.
 
-[^s1]: Documentation technique Kelvara Rhythm, v2.4, sections 1–3.
+[^s1]: Kelvara Rhythm technical documentation, v2.4, sections 1–3.

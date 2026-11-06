@@ -1,32 +1,31 @@
 ---
 type: Site
-title: Centre de secours de Thornfield
-description: Site de lecture ECG secondaire à 40 km au nord d'Elmhaven, dans un hôpital partenaire, qui sert aussi au reconditionnement des kits de patch retournés.
-tags: [operations, surveillance, site, continuite]
+title: Thornfield backup centre
+description: Secondary ECG review site 40 km north of Elmhaven, inside a partner hospital, also used to reprocess returned patch kits.
+tags: [operations, monitoring, site, continuity]
 status: stable
-lang: fr
 generated: { by: "human:fixture", at: "2026-10-01T09:00:00Z" }
 sources:
   - id: s1
     resource: "src:site-audit-2025"
-    title: "Audit de sécurité du site 2025"
+    title: "Site security audit 2025"
 ---
 
-# Centre de secours de Thornfield
+# Thornfield backup centre
 
-Le centre de secours de Thornfield est un site de lecture secondaire situé à 40 km au nord du
-[centre de surveillance d'Elmhaven](/sites/elmhaven-monitoring-centre.md), dans des locaux loués à un
-hôpital partenaire. Il compte 8 postes de lecture.[^s1]
+The Thornfield backup centre is a secondary review site 40 km north of the
+[Elmhaven monitoring centre](/sites/elmhaven-monitoring-centre.md), in rooms leased from a partner
+hospital. It has 8 review stations.[^s1]
 
-## Utilisations
+## Uses
 
-- Lecture du surplus quand la file d'Elmhaven dépasse 90 % de la capacité, et reprise complète si
-  Elmhaven est indisponible.[^s1]
-- Salle de reconditionnement des kits de patch [Linnet Medical](../suppliers/linnet-medical.md)
-  retournés : nettoyage et contrôle des batteries, selon les instructions de Linnet.[^s1]
+- Overflow review when Elmhaven's queue is above 90% of capacity, and full takeover if Elmhaven is
+  unavailable.[^s1]
+- Reprocessing room for returned [Linnet Medical](../suppliers/linnet-medical.md) patch kits:
+  cleaning and battery checks, following Linnet's instructions.[^s1]
 
-Thornfield n'a aucun poste habilité au tri des alertes urgentes : une alerte urgente qui arrive à
-Thornfield est transmise à Elmhaven ou au cardiologue d'astreinte de l'hôpital dans les 15 minutes.
-L'accès suit la [politique d'accès aux données patients](/policies/patient-data-access.md).
+Thornfield has no stations cleared for urgent-alert triage: an urgent alert that reaches Thornfield
+is handed to Elmhaven or to the hospital's on-call cardiologist within 15 minutes. Access follows the
+[patient-data access policy](/policies/patient-data-access.md).
 
-[^s1]: Audit de sécurité du site 2025, page 7.
+[^s1]: Site security audit 2025, page 7.

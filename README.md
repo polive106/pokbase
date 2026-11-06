@@ -12,7 +12,8 @@ The results of the evaluation are in [FINDINGS.md](FINDINGS.md); the original br
 
 > **All data is fictional.** The KB is the internal handbook of *Kelvara Health*, an invented French
 > digital-health startup (a class IIa software medical device, MDR vigilance, GDPR, HDS hosting).
-> The content is **in French**. It contains no real company, person or patient data.
+> The content is in English, except the patient-app page and one source, which are in French (the PRD asks for a
+> French page). It contains no real company, person or patient data.
 
 ---
 
@@ -44,18 +45,18 @@ git clone https://github.com/polive106/pokbase.git
 cd pokbase
 npm ci                                      # ~1 min
 cp .env.example .env                        # defaults: SQLite store, mock model
-npm run seed -- fixtures/kelvara-handbook   # loads 22 pages into ./data/knowledge-test.db
+npm run seed -- fixtures/kelvara-handbook   # loads 34 pages into ./data/knowledge-test.db
 npm run dev                                 # Studio on http://localhost:4111
 ```
 
 Open **http://localhost:4111**, then **Knowledge** in the sidebar: you should see the `kelvara` knowledge
-base with its page tree (`sites`, `suppliers`, `policies`, `products`, `playbooks`, `reglementation`, …)
+base with its page tree (`sites`, `suppliers`, `policies`, `products`, `playbooks`, `regulations`, `customers`, `plans`, …)
 and a link graph.
 
 Check it from the terminal too (in another shell):
 
 ```bash
-npm run kb -- search "bris de glace"                 # keyword search through the real Knowledge tools
+npm run kb -- search "break-glass access"                 # keyword search through the real Knowledge tools
 npm run kb -- read org:kelvara#people/prrc           # read a page (body, version, notes)
 npm test                                             # deterministic test suite, ~1.5 min, no key
 ```
@@ -103,11 +104,11 @@ each body.
 
 ### 3.2 Chat with the KB
 
-Studio → **Agents** → **Knowledge assistant** (read + write, with memory). Try, in French:
+Studio → **Agents** → **Knowledge assistant** (read + write, with memory). Try:
 
-- "Qui héberge nos données patients ?" then, in the same thread, "et quel crédit de service nous doivent-ils ?"
-- "Combien de temps garde-t-on les enregistrements ECG bruts ?" (current value, and the superseded 2024 one)
-- "Quel est le délai de la FDA pour une déclaration MDR ?" → it should say **it doesn't know**: the KB only
+- "Who hosts our patient data?" then, in the same thread, "what service credit do they owe us?"
+- "How long do we keep raw ECG recordings?" (current value, and the superseded 2024 one), then "and for Valmoor?" (its DPA sets 20 days)
+- "What is the FDA deadline for a medical device report?" → it should say **it doesn't know**: the KB only
   covers EU/French rules, and the agent must not answer regulatory questions from memory.
 
 Answers cite page refs. The **Reader agent** is the same, read-only.
@@ -190,7 +191,7 @@ Without Claude Code: `npm run mcp:smoke` (add `-- --ask "…"` to try `ask_reade
 ```bash
 npm run kb -- list                                        # scopes and page tree
 npm run kb -- search "conservation des données"
-npm run kb -- read org:kelvara#playbooks/incident-vigilance --section "5. Incidents graves et déclaration de vigilance"
+npm run kb -- read org:kelvara#playbooks/incident-vigilance --section "5. Serious incidents and vigilance reporting"
 npm run kb -- read resource:bob#notes --user alice        # isolation: "not found"
 npm run kb -- note org:kelvara#sites/elmhaven-monitoring-centre "Poste 4 remplacé" --user bob
 npm run kb -- create suppliers/test-co "Test Co" ./body.md
@@ -229,7 +230,7 @@ npm run inspect                                           # dump all tables to o
 
 ## 5. The dataset
 
-`fixtures/kelvara-handbook/` — 22 pages, in French (page keys stay as ASCII slugs). Controlled documents carry
+`fixtures/kelvara-handbook/` — 34 pages, in English except `products/kelvara-suivi` (French). Controlled documents carry
 `doc_id`, `revision`, `owner`, `review_due` and `regulatory_refs` in their front matter.
 
 | Pages | Content |
@@ -237,10 +238,13 @@ npm run inspect                                           # dump all tables to o
 | `products/kelvara-rhythm`, `products/kelvara-suivi` | The class IIa AF-detection software; the patient app (*hors dispositif médical*) |
 | `sites/*` | Elmhaven monitoring centre, Thornfield backup centre |
 | `suppliers/*` | Ardoise Cloud (HDS host, subprocessor), Linnet Medical (patch maker) |
-| `policies/*` | Data retention (+ the deprecated 2024 version), patient-data access |
-| `playbooks/incident-vigilance` | MDR vigilance (2/10/15 days), GDPR breaches (72 h), FSCA — the long page (~2,200 words) |
-| `people/prrc`, `glossary/significant-change` | The MDR Art. 15 role; a draft definition |
-| `reglementation/*` (10 pages) | The real French/EU framework summarised from official sources (ANS, HAS, ANSM, CNIL, EUR-Lex), with a `verified` date: MDR/EUDAMED, matériovigilance, HDS v2, télésurveillance/LATM, PECAN, Ségur, INS, CNIL, EHDS |
+| `policies/*` | Data retention (+ the deprecated 2024 version), patient-data access, complaint handling, software release, supplier management, training and competence |
+| `customers/*` | Valmoor University Hospital (pilot site, DPA with a shorter 20-day retention), Brennick Cardiology Clinic |
+| `plans/post-market-surveillance`, `products/rhythm-release-history` | PMS indicators and thresholds, PSUR every 2 years, PMCF; releases 2.1–2.4 and their change classification |
+| `playbooks/data-subject-requests` | GDPR requests: forward to the hospital within 2 working days; one month (+2) to answer |
+| `playbooks/incident-vigilance` | MDR vigilance (2/10/15 days), GDPR breaches (72 h), FSCA — the long page (~2,000 words) |
+| `people/*`, `glossary/*` | Roles (PRRC, DPO, vigilance officer); terms (significant change — draft, serious incident) |
+| `regulations/*` (10 pages) | The real French/EU framework summarised from official sources (ANS, HAS, ANSM, CNIL, EUR-Lex), with a `verified` date: MDR/EUDAMED, matériovigilance, HDS v2, télésurveillance/LATM, PECAN, Ségur, INS, CNIL, EHDS |
 
 `fixtures/sources/` — 8 raw sources, each with an expected effect (a new subprocessor page; two contradicting
 closure dates kept side by side; 30 → 45 days marked superseded; a byte-identical duplicate; extra access rules;

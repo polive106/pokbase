@@ -1,10 +1,9 @@
 ---
 type: Term
-title: Modification significative
-description: Projet de définition d'une modification significative de Kelvara Rhythm - les changements qui exigent l'examen de l'organisme notifié avant mise en production.
-tags: [glossaire, reglementaire, maitrise-des-modifications]
+title: Significant change
+description: Draft definition of a significant change to Kelvara Rhythm - the changes that need notified body review before release.
+tags: [glossary, regulatory, change-control]
 status: draft
-lang: fr
 doc_id: SOP-012-A
 revision: 1
 owner: "role:prrc"
@@ -12,25 +11,25 @@ generated: { by: "human:fixture", at: "2026-10-01T09:00:00Z" }
 sources:
   - id: s1
     resource: "src:sop-012-v4"
-    title: "SOP-012 Maîtrise des modifications, v4"
+    title: "SOP-012 Change control, v4"
 ---
 
-# Modification significative
+# Significant change
 
-*Projet de définition, en attente d'approbation par le comité qualité.*
+*Draft definition, pending quality review board approval.*
 
-Une modification de [Kelvara Rhythm](/products/kelvara-rhythm.md) est significative dès que l'une de
-ces conditions est remplie :[^s1]
+A change to [Kelvara Rhythm](/products/kelvara-rhythm.md) is significant when any of these holds:[^s1]
 
-- elle change la destination, la population de patients ou les indications ;
-- elle remplace le modèle de détection de la FA par une architecture différente, ou elle fait varier la
-  sensibilité ou la spécificité de plus de 1 point de pourcentage sur le jeu de données de référence ;
-- elle fait passer un élément logiciel en classe C de l'IEC 62304.
+- it changes the intended purpose, the patient population or the indications;
+- it replaces the AF detection model with a different architecture, or it moves sensitivity or
+  specificity by more than 1 percentage point on the reference dataset;
+- it moves any software item into IEC 62304 class C.
 
-Une modification significative est soumise à l'organisme notifié, Norvane Certification, et n'est pas
-mise en production avant son accord. Les autres modifications sont consignées dans le registre des
-modifications et revues au prochain audit de surveillance. La [PRRC](../people/prrc.md) valide le
-classement de chaque modification, et une modification faite pendant un incident suit aussi cette
-définition (voir le [playbook incidents et vigilance](/playbooks/incident-vigilance.md)).
+A significant change is submitted to the notified body, Norvane Certification, and is not released
+before its approval. Other changes are recorded in the change record and reviewed at the next
+surveillance audit. The [PRRC](../people/prrc.md) signs off the classification of every change, and a
+change made during an incident still follows this definition (see the
+[incident and vigilance playbook](/playbooks/incident-vigilance.md)). The release itself follows the
+[software release procedure](/policies/software-release.md).
 
-[^s1]: SOP-012 Maîtrise des modifications, v4, annexe A.
+[^s1]: SOP-012 Change control, v4, annex A.

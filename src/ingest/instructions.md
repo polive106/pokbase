@@ -84,9 +84,9 @@ marked `~~old value~~ (superseded on <date> by src:…)`, next to the new one. D
 
 ## Language
 
-The knowledge base is written in **French**. Write page text, notes and the contradiction section in French
-(`## Contradictions` keeps that heading), and mark superseded values as `~~ancienne valeur~~ (remplacée le <date> par src:…)`.
-Sources may be in English or French; quote the original when useful.
+The knowledge base is written in English, except a few French pages (e.g. `products/kelvara-suivi`).
+Record facts in the page's own language (on a French page, mark superseded values
+`~~ancienne valeur~~ (remplacée le <date> par src:…)`). Sources may be in French; quote the original when useful.
 
 ## Finish
 
